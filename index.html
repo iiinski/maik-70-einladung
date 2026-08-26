@@ -11,7 +11,56 @@
 <section class="section cream"><div class="rsvp-card"><h2 class="section-title">Bist du dabei?</h2><div class="ornament">✦</div><p class="sub">Bitte sende deine Rückmeldung und Menüauswahl direkt per WhatsApp.</p><form id="rsvpForm"><div class="grid"><div class="field"><label for="name">Dein Name *</label><input id="name" required autocomplete="name"></div><div class="field"><label for="status">Rückmeldung *</label><select id="status" required><option value="">Bitte wählen</option><option>Ich komme sehr gerne</option><option>Ich kann leider nicht teilnehmen</option></select></div><div class="field"><label for="plus">Begleitperson</label><input id="plus" placeholder="Name oder keine"></div><div class="field"><label for="meal">Menüauswahl</label><select id="meal"><option value="">Bitte wählen</option><option>Rind</option><option>Fisch</option><option>Vegetarisch</option></select></div><div class="field full"><label for="allergy">Allergien oder Unverträglichkeiten</label><input id="allergy" placeholder="Optional"></div><div class="field full"><label for="message">Persönliche Nachricht an Maik</label><textarea id="message" placeholder="Optional"></textarea></div></div><div class="buttons"><button class="btn primary" type="submit">Antwort per WhatsApp senden</button></div><p class="privacy">Die Angaben werden nicht auf dieser Seite gespeichert. Sie werden ausschließlich in die WhatsApp-Nachricht übernommen.</p></form></div></section>
 <footer class="final"><q>Ich freue mich darauf, diesen besonderen Abend gemeinsam mit euch zu verbringen.</q><p>🥂 23. Oktober 2026 · Köln 🥂</p></footer></main>
 <script>
-const EVENT_DATE=new Date('2026-10-23T18:00:00+02:00');const RSVP_PHONE='';const qs=new URLSearchParams(location.search),guest=qs.get('name'),type=qs.get('type'),name1=qs.get('name1'),name2=qs.get('name2'),customGreeting=qs.get('anrede');if(customGreeting){document.getElementById('greeting').textContent=customGreeting.replace(/[,\s]+$/, '')+',';document.getElementById('name').value=guest||[name1,name2].filter(Boolean).join(' & ')}else if(type==='paar'&&name1&&name2){document.getElementById('greeting').textContent=`Liebe ${name1}, lieber ${name2},`;document.getElementById('name').value=guest||`${name1} & ${name2}`}else if(guest){if(type==='paar'){document.getElementById('greeting').textContent=`Liebe ${guest},`}else if(type==='familie'){document.getElementById('greeting').textContent=`Liebe ${guest},`}else if(type==='gruppe'){document.getElementById('greeting').textContent=`Ihr Lieben ${guest},`}else{document.getElementById('greeting').textContent=`Liebe/r ${guest},`}document.getElementById('name').value=guest}const opening=document.getElementById('opening'),envelope=document.getElementById('envelope'),invite=document.getElementById('invite');function openInvite(){envelope.classList.add('open');setTimeout(()=>{opening.classList.add('gone');invite.classList.add('show');startConfetti()},1100)}envelope.addEventListener('click',openInvite);envelope.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInvite()}});
+const EVENT_DATE=new Date('2026-10-23T18:00:00+02:00');const RSVP_PHONE='';const qs=new URLSearchParams(location.search);
+const guest=qs.get('name')?.trim(),type=qs.get('type')?.trim(),name1=qs.get('name1')?.trim(),name2=qs.get('name2')?.trim(),customGreeting=qs.get('anrede')?.trim();
+const repositoryName='maik-70-einladung';
+const pathParts=decodeURIComponent(location.pathname).split('/').filter(Boolean);
+const repositoryIndex=pathParts.indexOf(repositoryName);
+const slug=(repositoryIndex>=0?pathParts[repositoryIndex+1]:pathParts[0])||'';
+const titleCase=value=>value.split('-').filter(Boolean).map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join(' ');
+let displayName='',greetingPhrase='';
+if(customGreeting){
+  greetingPhrase=customGreeting.replace(/[,\s]+$/,'')+',';
+  displayName=guest||[name1,name2].filter(Boolean).join(' & ');
+}else if(type==='paar'&&name1&&name2){
+  greetingPhrase=`Liebe ${name1}, lieber ${name2},`;
+  displayName=guest||`${name1} & ${name2}`;
+}else if(guest){
+  if(type==='paar')greetingPhrase=`Liebe ${guest},`;
+  else if(type==='familie')greetingPhrase=`Liebe ${guest},`;
+  else if(type==='gruppe')greetingPhrase=`Ihr Lieben ${guest},`;
+  else greetingPhrase=`Liebe/r ${guest},`;
+  displayName=guest;
+}else if(slug&&slug!=='index.html'){
+  const parts=slug.split('-').filter(Boolean);
+  if(parts[0]==='familie'&&parts.length>1){
+    displayName=`Familie ${titleCase(parts.slice(1).join('-'))}`;
+    greetingPhrase=`Liebe ${displayName},`;
+  }else if(parts[0]==='gruppe'&&parts.length>1){
+    displayName=titleCase(parts.slice(1).join('-'));
+    greetingPhrase=`Ihr Lieben ${displayName},`;
+  }else if(parts[0]==='einzel'&&parts.length>1){
+    displayName=titleCase(parts.slice(1).join('-'));
+    greetingPhrase=`Liebe/r ${displayName},`;
+  }else if(parts.includes('und')){
+    const undIndex=parts.indexOf('und');
+    const first=titleCase(parts.slice(0,undIndex).join('-'));
+    const second=titleCase(parts.slice(undIndex+1).join('-'));
+    displayName=`${first} & ${second}`;
+    greetingPhrase=`Liebe ${first}, lieber ${second},`;
+  }else if(parts.length===2){
+    const first=titleCase(parts[0]),second=titleCase(parts[1]);
+    displayName=`${first} & ${second}`;
+    greetingPhrase=`Liebe ${first}, lieber ${second},`;
+  }else{
+    displayName=titleCase(slug);
+    greetingPhrase=`Liebe/r ${displayName},`;
+  }
+}
+const greetingEl=document.getElementById('greeting'),nameInput=document.getElementById('name');
+if(greetingEl&&greetingPhrase)greetingEl.textContent=greetingPhrase;
+if(nameInput&&displayName)nameInput.value=displayName;
+const opening=document.getElementById('opening'),envelope=document.getElementById('envelope'),invite=document.getElementById('invite');function openInvite(){envelope.classList.add('open');setTimeout(()=>{opening.classList.add('gone');invite.classList.add('show');startConfetti()},1100)}envelope.addEventListener('click',openInvite);envelope.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInvite()}});
 function tick(){const d=EVENT_DATE-new Date(),c=document.getElementById('countdown');if(d<=0){c.innerHTML='<div class="unit" style="grid-column:1/-1"><strong>Heute wird gefeiert!</strong></div>';return}const vals=[Math.floor(d/864e5),Math.floor(d/36e5)%24,Math.floor(d/6e4)%60,Math.floor(d/1e3)%60],labs=['Tage','Stunden','Minuten','Sekunden'];c.innerHTML=vals.map((v,i)=>`<div class="unit"><strong>${String(v).padStart(2,'0')}</strong><small>${labs[i]}</small></div>`).join('')}tick();setInterval(tick,1000);
 function startConfetti(){const canvas=document.getElementById('confetti'),ctx=canvas.getContext('2d');let w,h,parts=[];function size(){w=canvas.width=innerWidth*devicePixelRatio;h=canvas.height=innerHeight*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);w=innerWidth;h=innerHeight}size();addEventListener('resize',size);const colors=['#e5c278','#d6d9de','#f8e8c9','#b98b40'];for(let i=0;i<78;i++)parts.push({x:Math.random()*w,y:Math.random()*-h,s:3+Math.random()*7,v:1+Math.random()*2.7,r:Math.random()*6.28,vr:(Math.random()-.5)*.14,c:colors[i%colors.length],a:.5+Math.random()*.5});let frames=0;function draw(){ctx.clearRect(0,0,w,h);for(const p of parts){p.y+=p.v;p.x+=Math.sin(p.y/70)*.35;p.r+=p.vr;if(p.y>h+15){p.y=-20;p.x=Math.random()*w}ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.globalAlpha=p.a;ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/5,p.s,p.s*.4);ctx.restore()}if(frames++<1100)requestAnimationFrame(draw)}draw()}
 function responseText(){const v=id=>document.getElementById(id).value.trim()||'keine Angabe';return `Antwort auf die Einladung „70 Jahre Maik!“\n\nName: ${v('name')}\nRückmeldung: ${v('status')}\nBegleitperson: ${v('plus')}\nMenü: ${v('meal')}\nAllergien/Unverträglichkeiten: ${v('allergy')}\nNachricht an Maik: ${v('message')}`}
