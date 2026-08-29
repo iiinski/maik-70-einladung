@@ -93,7 +93,7 @@ if(customGreeting){
     greetingPhrase=`Ihr Lieben ${displayName},`;
   }else if(parts[0]==='einzel'&&parts.length>1){
     displayName=titleCase(parts.slice(1).join('-'));
-    greetingPhrase=`Liebe/r ${displayName},`;
+    greetingPhrase=`Lieber ${displayName},`;
   }else if(parts.includes('und')){
     const undIndex=parts.indexOf('und');
     const first=titleCase(parts.slice(0,undIndex).join('-'));
@@ -106,7 +106,7 @@ if(customGreeting){
     greetingPhrase=`Liebe ${first}, lieber ${second},`;
   }else{
     displayName=titleCase(slug);
-    greetingPhrase=`Liebe/r ${displayName},`;
+    greetingPhrase=`Lieber ${displayName},`;
   }
 }
 const greetingEl=document.getElementById('greeting'),nameInput=document.getElementById('name');
